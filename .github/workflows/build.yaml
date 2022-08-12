@@ -7,12 +7,7 @@ on:
 
 jobs:
   build_and_test:
-    name: Build and test
-    strategy:
-      matrix:
-        os: [ 'windows-latest', 'macos-latest', 'ubuntu-latest' ]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
     - name: Checkout the repository
@@ -29,7 +24,6 @@ jobs:
         dotnet-version: '3.1.x'
 
     - name: Clear NuGet local cache
-      if: matrix.os == 'windows-latest'
       shell: pwsh
       run: |
         dotnet nuget locals all --clear
@@ -47,7 +41,6 @@ jobs:
         dotnet build . -c Debug -v minimal
 
     - name: Test function app (Windows)
-      if: matrix.os == 'windows-latest'
       shell: pwsh
       run: |
         dir
@@ -58,23 +51,6 @@ jobs:
         cd ./src/FunctionApp
         # Start-Process -NoNewWindow "$func" start --verbose false
         Start-Process -NoNewWindow "$func" @("start","--verbose","false")
-        Start-Sleep -s 60
-
-        cd $rootDir/test/FunctionApp.Tests
-        dotnet test . -c Debug
-        cd $rootDir
-
-    - name: Test function app (Non-Windows)
-      if: matrix.os != 'windows-latest'
-      shell: pwsh
-      run: |
-        dir
-
-        $rootDir = $pwd.Path
-
-        cd ./src/FunctionApp
-        # Start-Process -NoNewWindow func start --verbose false
-        Start-Process -NoNewWindow func @("start","--verbose","false")
         Start-Sleep -s 60
 
         cd $rootDir/test/FunctionApp.Tests
